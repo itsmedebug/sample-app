@@ -1,0 +1,29 @@
+steps:
+- name: 'golang'
+  args: ['go', 'build', '-o', 'main', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '-t'
+  - 'us-east4-docker.pkg.dev/qwiklabs-gcp-04-534c1680ee48/my-repository/hello-cloudbuild-dev:v1.0'
+  - '.'
+
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'push'
+  - 'us-east4-docker.pkg.dev/qwiklabs-gcp-04-534c1680ee48/my-repository/hello-cloudbuild-dev:v1.0'
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - 'apply'
+  - '-f'
+  - 'dev/deployment.yaml'
+  - '-n'
+  - 'dev'
+  env:
+  - 'CLOUDSDK_COMPUTE_REGION=us-east4'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=hello-cluster'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
